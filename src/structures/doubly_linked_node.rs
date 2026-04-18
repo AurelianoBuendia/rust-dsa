@@ -6,7 +6,7 @@ use std::fmt::Debug;
 
 #[derive(Debug)]
 pub struct DLNode<T: Clone + Debug> {
-    pub value: T,
+    pub value: Box<T>,
     pub previous: Option<Weak<RefCell<DLNode<T>>>>,
     pub next: Option<Rc<RefCell<DLNode<T>>>>,
 }
@@ -16,15 +16,9 @@ impl<T: Clone + Debug> DLNode<T> {
     where
     T: Clone {
         DLNode {
-            value,
+            value: Box::new(value),
             previous: None,
             next: None,
         }
-    }
-}
-
-impl<T: Clone + Debug> Drop for DLNode<T> {
-    fn drop(&mut self) {
-        println!("Dropping {:?}", self.value);
     }
 }

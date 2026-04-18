@@ -1,4 +1,4 @@
-
+use std::collections::VecDeque;
 use rust_dsa::structures::deque::Deque;
 
 
@@ -40,22 +40,9 @@ fn test_create_deque_multiple_items() {
 
 #[test]
 fn test_create_large_deque() {
-    use rand::RngExt;
-    let range = 1000;
-    let mut values: Box<Vec<i32>> = Box::new(Vec::new());
-    let mut rng = rand::rng();
-    let mut deque: Box<Deque<i32>> = Box::new(Deque::new());
-    for _ in 0..range {
-        let n = rng.random_range(0..=range);
-        values.push(n);
-        deque.append(n);
-    }
-    let mut results: Box<Vec<i32>> = Box::new(Vec::new());
-    for _ in 0..range {
-        results.push(deque.pop().unwrap());
-    }
-    values.reverse();
-    assert_eq!(*results, *values);
+    let (values, deque) = fill_deque();
+    let results = reverse_results(deque, values.len());
+    assert!(values.iter().eq(results.iter()));
 }
 
 #[test]
@@ -95,18 +82,41 @@ fn test_create_queue_multiple_items() {
 #[test]
 fn test_create_large_queue() {
     use rand::RngExt;
-    let range = 1000;
-    let mut values: Box<Vec<i32>> = Box::new(Vec::new());
+    let range = 10_000_000;
+    let mut values: Vec<i32> = Vec::new();
     let mut rng = rand::rng();
-    let mut deque: Box<Deque<i32>> = Box::new(Deque::new());
+    let mut deque: Deque<i32> = Deque::new();
     for _ in 0..range {
         let n = rng.random_range(0..=range);
         values.push(n);
         deque.append(n);
     }
-    let mut results: Box<Vec<i32>> = Box::new(Vec::new());
+    let mut results: Vec<i32> = Vec::new();
     for _ in 0..range {
         results.push(deque.dequeue().unwrap());
     }
-    assert_eq!(*results, *values);
+    assert!(results.iter().eq(values.iter()));
+}
+
+fn fill_deque() -> (Vec<i32>, Deque<i32>) {
+    use rand::RngExt;
+    let range = 10_000_000;
+    let mut values: Vec<i32> = Vec::new();
+    let mut rng = rand::rng();
+    let mut deque: Deque<i32> = Deque::new();
+    for _ in 0..range {
+        let n = rng.random_range(0..=range);
+        values.push(n);
+        deque.append(n);
+    }
+    (values, deque)
+}
+
+fn reverse_results(mut deque: Deque<i32>, length: usize) -> VecDeque<i32> {
+    use std::collections::VecDeque;
+    let mut results: VecDeque::<i32> = VecDeque::new();
+    for _ in 0..length {
+        results.push_front(deque.pop().unwrap());
+    }
+    results
 }

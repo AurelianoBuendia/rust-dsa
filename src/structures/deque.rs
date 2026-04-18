@@ -22,57 +22,48 @@ impl<T: Clone + Debug> Deque<T> {
     pub fn append(&mut self, value: T) {
         let new_tail = Rc::new(RefCell::new(DLNode::new(value)));
         if self.tail.is_some() {
-            let tail = self.tail.as_ref().unwrap().clone();
-            tail.borrow_mut().next = Some(new_tail.clone());
+            self.tail.as_ref().unwrap().borrow_mut().next = Some(new_tail.clone());
             new_tail.borrow_mut().previous = Some(Rc::downgrade(&self.tail.as_ref().unwrap()));
-            self.tail = Some(new_tail); //.clone()
+            self.tail = Some(new_tail);
         } else if self.head.is_some() {
             let mut head = self.head.as_ref().unwrap().borrow_mut();
             head.next = Some(new_tail.clone());
             new_tail.borrow_mut().previous = Some(Rc::downgrade(&self.head.as_ref().unwrap()));
-            self.tail = Some(new_tail.clone());
+            self.tail = Some(new_tail);
         } else {
             self.head = Some(new_tail);
-        }
-        if self.tail.is_some() {
-            println!("append() - Number of references for tail: {}.", Rc::strong_count(&self.tail.as_ref().unwrap()));
-        }
-        if self.head.is_some() {
-            println!("append() - Number of references for head: {}.", Rc::strong_count(&self.head.as_ref().unwrap()));
+            self.tail = None;
         }
     }
 
     pub fn pop(&mut self) -> Option<T> {
         if let Some(node) = self.tail.take() {
-            if Rc::ptr_eq(self.head.as_ref().unwrap(), &node) {
-                let value: T = node.as_ref().borrow().value.clone();
+            if Rc::ptr_eq(self.head.as_ref().unwrap(), &node.borrow().previous.as_ref().unwrap().upgrade().unwrap()) {
+                let value: T = *node.as_ref().borrow().value.to_owned();
                 self.tail = None;
-                println!("pop() - Removed value: {:?}.", value);
-                println!("pop() - Number of references for head: {}.", Rc::strong_count(&self.head.as_ref().unwrap()));
+                self.head.as_ref().unwrap().borrow_mut().next = None;
+                // println!("pop() - Number of references for head: {}.", Rc::strong_count(&self.head.as_ref().unwrap()));
                 Some(value)
             } else {
-                let new_tail = node.as_ref().borrow_mut().previous.clone();
-                let new_tail = new_tail.unwrap().upgrade().unwrap().clone();
+                let new_tail = node.as_ref().borrow_mut().previous.as_ref().unwrap().upgrade().unwrap();
+                new_tail.borrow_mut().next = None;
                 self.tail = Some(new_tail);
-                let value: T = node.as_ref().borrow().value.clone();
-                println!("pop() - Removed value: {:?}.", value);
-                println!("pop() - Number of references for head: {}.", Rc::strong_count(&self.head.as_ref().unwrap()));
-                println!("pop() - Number of references for tail: {}.", Rc::strong_count(&self.tail.as_ref().unwrap()));
+                let value: T = *node.as_ref().borrow().value.to_owned();
+                // println!("pop() - Number of references for head: {}.", Rc::strong_count(&self.head.as_ref().unwrap()));
+                // println!("pop() - Number of references for tail: {}.", Rc::strong_count(&self.tail.as_ref().unwrap()));
                 Some(value)
             }
-        } else if let Some(node) = self.head.take() {
+        } else {
             if self.head.is_some() {
-                println!("pop() - Number of references for head: {}.", Rc::strong_count(&self.head.as_ref().unwrap()));
+                let head = self.head.take();
+                let value_box: Box<T> = head.as_ref().unwrap().borrow_mut().value.clone();
+                let value = *value_box;
+                self.tail = None;
+                Some(value)
             } else {
                 println!("pop() - head is None.");
+                None
             }
-            let value = node.as_ref().borrow().value.clone();
-            println!("pop() - Removed value: {:?}.", value);
-            self.head = None;
-            Some(value)
-        }
-        else {
-            None
         }
     }
 
@@ -85,7 +76,7 @@ impl<T: Clone + Debug> Deque<T> {
                 self.head = None;
             }
             let value = head.as_ref().borrow().value.clone();
-            Some(value)
+            Some(*value)
         } else {
             None
         }
