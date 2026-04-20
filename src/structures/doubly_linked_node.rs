@@ -7,6 +7,7 @@ use std::fmt::Debug;
 #[derive(Debug, Clone)]
 pub struct DLNode<T: Clone + Debug> {
     pub value: Box<T>,
+    // pub value: T,
     pub previous: Option<Weak<RefCell<DLNode<T>>>>,
     pub next: Option<Rc<RefCell<DLNode<T>>>>,
 }
@@ -17,6 +18,7 @@ impl<T: Clone + Debug> DLNode<T> {
     T: Clone {
         DLNode {
             value: Box::new(value),
+            // value,
             previous: None,
             next: None,
         }

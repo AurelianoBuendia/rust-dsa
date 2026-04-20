@@ -56,10 +56,10 @@ impl<T: Clone + Debug> Deque<T> {
         } else {
             if self.head.is_some() {
                 let head = self.head.take();
-                let value_box: Box<T> = head.as_ref().unwrap().borrow_mut().value.clone();
-                let value = *value_box;
+                let value = head.as_ref().unwrap().borrow().value.to_owned();
                 self.tail = None;
-                Some(value)
+                // If using Box in doubly_linked_list, add dereference (* operator) in the next line
+                Some(*value)
             } else {
                 println!("pop() - head is None.");
                 None
@@ -76,6 +76,7 @@ impl<T: Clone + Debug> Deque<T> {
                 self.head = None;
             }
             let value = head.as_ref().borrow().value.clone();
+            // If using Box in doubly_linked_list, add indirection (* operator) in the next line
             Some(*value)
         } else {
             None
