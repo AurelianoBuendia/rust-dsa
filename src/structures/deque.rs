@@ -6,7 +6,7 @@ use crate::structures::doubly_linked_node::DLNode;
 
 
 #[derive(Debug, Clone)]
-pub struct Deque<T: std::clone::Clone + Debug> {
+pub struct Deque<T: Clone + Debug> {
     head: Option<Rc<RefCell<DLNode<T>>>>,
     tail: Option<Rc<RefCell<DLNode<T>>>>,
 }

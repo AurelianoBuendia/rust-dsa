@@ -1,4 +1,7 @@
+
 use std::collections::VecDeque;
+use memory_stats::{memory_stats};
+
 use rust_dsa::structures::deque::Deque;
 
 
@@ -40,7 +43,13 @@ fn test_create_deque_multiple_items() {
 
 #[test]
 fn test_create_large_deque() {
+    if let Some(usage) = memory_stats() {
+        println!("Physical memory usage before execution: {:.2} MB", usage.physical_mem as f32 / 1_000_000f32);
+    }
     let (values, deque) = fill_deque();
+    if let Some(usage) = memory_stats() {
+        println!("Physical memory usage after execution: {:.2} MB", usage.physical_mem as f32 / 1_000_000f32);
+    }
     let results = reverse_results(deque, values.len());
     assert!(values.iter().eq(results.iter()));
 }
@@ -86,10 +95,16 @@ fn test_create_large_queue() {
     let mut values: Vec<i32> = Vec::new();
     let mut rng = rand::rng();
     let mut deque: Deque<i32> = Deque::new();
+    if let Some(usage) = memory_stats() {
+        println!("Physical memory usage before execution: {:.2} MB", usage.physical_mem as f32 / 1_000_000f32);
+    }
     for _ in 0..range {
         let n = rng.random_range(0..=range);
         values.push(n);
         deque.append(n);
+    }
+    if let Some(usage) = memory_stats() {
+        println!("Physical memory usage after execution: {:.2} MB", usage.physical_mem as f32 / 1_000_000f32);
     }
     let mut results: Vec<i32> = Vec::new();
     for _ in 0..range {

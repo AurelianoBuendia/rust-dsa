@@ -4,7 +4,7 @@ use std::cell::RefCell;
 use std::fmt::Debug;
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DLNode<T: Clone + Debug> {
     pub value: Box<T>,
     pub previous: Option<Weak<RefCell<DLNode<T>>>>,
