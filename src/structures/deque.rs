@@ -75,7 +75,7 @@ impl<T: Clone + Debug> Deque<T> {
             } else {
                 self.head = None;
             }
-            let value = head.as_ref().borrow().value.clone();
+            let value = head.as_ref().borrow().value.to_owned();
             // If using Box in doubly_linked_list, add indirection (* operator) in the next line
             Some(*value)
         } else {
